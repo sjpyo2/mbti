@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MBTI 성격유형 검사 - 발전 액션 플랜 포함</title>
+    <style>
+      /* 기본 스타일 */
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      .instructions {
+        background-color: #eaf2f8;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border-left: 5px solid #3498db;
+      }
+      .question {
+        background-color: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .question-text {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .options {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+      .option {
+        text-align: center;
+        flex: 1;
+        position: relative;
+      }
+      /* 커스텀 라디오 버튼 */
+      .option input[type="radio"] {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .option input[type="radio"]:hover {
+        border-color: #e74c3c;
+      }
+      .option input[type="radio"]:checked {
+        border-color: #e74c3c;
+        transform: scale(1.2);
+      }
+      .option input[type="radio"]:checked::before {
+        content: "";
+        display: block;
+        width: 10px;
+        height: 10px;
+        background-color: #e74c3c;
+        border-radius: 50%;
+        margin: 3px auto;
+      }
+      .scale-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-top: 5px;
+        line-height: 1.3;
+        max-width: 90px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      button {
+        display: block;
+        width: 100%;
+        max-width: 220px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      .progress-container {
+        width: 100%;
+        background-color: #ddd;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .progress-bar {
+        width: 0;
+        height: 20px;
+        background-color: #3498db;
+        border-radius: 5px;
+        transition: width 0.3s;
+        text-align: center;
+        color: #fff;
+        line-height: 20px;
+        font-size: 12px;
+      }
+      #result {
+        display: none;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .mbti-type {
+        font-size: 26px;
+        font-weight: bold;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      .type-description {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      .analysis-section {
+        margin-top: 20px;
+        padding: 15px;
+        border-top: 1px solid #ccc;
+      }
+      .analysis-section h3 {
+        margin-bottom: 10px;
+      }
+      .analysis-section p,
+      .analysis-section li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+        text-align: justify;
+      }
+      .highlight-title {
+        color: #e74c3c;
+        margin-top: 15px;
+      }
+      .footer-box {
+        border: 1px solid #ddd;
+        padding: 12px;
+        margin-top: 20px;
+        text-align: center;
+        border-radius: 5px;
+        background-color: #fafafa;
+        font-weight: bold;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>MBTI 성격유형 검사</h1>
+
+    <div class="instructions">
+      <p>
+        이 테스트는 연애 및 일상생활 속 다양한 상황을 중심으로 구성된 MBTI
+        성격유형 검사입니다. 각 질문에 대해 본인의 실제 경험과 느낌을 솔직하게
+        반영하여 선택해주세요.
+      </p>
+      <p>
+        총 50문항이며, 약 10분 내외 소요됩니다. 정답은 없으니 자신에게 맞는 답을
+        선택하세요.
+      </p>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-bar" id="progress">0%</div>
+    </div>
+
+    <div id="quiz-container">
+      <!-- 50문항 전체가 JavaScript로 동적으로 삽입됩니다. -->
+    </div>
+
+    <button id="submit-btn" onclick="calculateResult()">결과 확인하기</button>
+
+    <div id="result">
+      <h2>당신의 MBTI 성격유형은:</h2>
+      <div class="mbti-type" id="mbti-type"></div>
+      <div class="type-description" id="type-description"></div>
+
+      <div id="type-details">
+        <h3>유형 분석:</h3>
+        <div id="dimension-results"></div>
+      </div>
+
+      <!-- 추가 분석 섹션 -->
+      <div class="analysis-section">
+        <h3>추가 분석</h3>
+        <div id="additional-analysis"></div>
+      </div>
+
+      <!-- 참고문헌 및 기초이론 -->
+      <div class="analysis-section" id="references">
+        <h3>참고문헌 및 기초이론</h3>
+        <p>
+          - 칼 융 (Carl Gustav Jung)의 심리유형론 (특히 <em>심리학적 유형</em>)
+        </p>
+        <p>
+          - 마이어스-브릭스 (Myers & Briggs) 및 캐서린 쿡 브릭스 (Katharine Cook
+          Briggs)의 연구
+        </p>
+        <p>
+          - MBTI 문항 및 결과 해석 관련 연구: David Keirsey, Isabel Briggs Myers
+          등
+        </p>
+        <p>
+          - 관련 논문/서적: “Personality Type: Jung’s Model of Typology”, “Gifts
+          Differing: Understanding Personality Type” 등
+        </p>
+      </div>
+
+      <!-- 개선 목표 설정 및 액션 플랜 -->
+      <div class="analysis-section" id="action-plan">
+        <h3>개선 목표 설정 및 액션 플랜</h3>
+        <ol>
+          <li>
+            <strong>대인관계 개선:</strong> 매주 한 번 새로운 사람과 만남을 통해
+            자신의 감정을 솔직하게 표현하고, 상대방의 피드백을 받아 관계의 질을
+            향상시키세요. 소규모 모임이나 피드백 워크숍에 참여하여 다양한
+            커뮤니케이션 기술을 익히는 것이 좋습니다.
+          </li>
+          <li>
+            <strong>업무 효율 향상:</strong> 매일 아침 구체적인 목표와
+            우선순위를 설정한 후, 하루가 끝날 때 성과를 기록하고 팀원과 공유하는
+            루틴을 가지세요. 이를 통해 자신과 팀의 진행 상황을 지속적으로 점검할
+            수 있습니다.
+          </li>
+          <li>
+            <strong>취미 활동 도전:</strong> 평소 즐기던 취미 외에 미술, 음악,
+            댄스, 여행 등 전혀 다른 분야에 주 1회 도전하여 창의력과 융통성을
+            기르는 경험을 쌓으세요.
+          </li>
+          <li>
+            <strong>자기계발:</strong> 매달 한 권 이상의 자기계발 또는 심리학
+            관련 도서를 읽고, 그 내용을 바탕으로 자신의 강점과 약점을 분석하여
+            주간 개선 계획을 수립하는 습관을 들이세요.
+          </li>
+          <li>
+            <strong>의사소통 기술 강화:</strong> 정기적인 팀 피드백 세션이나
+            커뮤니케이션 워크숍에 참여하여, 자신의 감정과 생각을 논리적이고
+            부드럽게 표현하는 연습을 지속적으로 하세요.
+          </li>
+          <li>
+            <strong>스트레스 관리:</strong> 매일 최소 10분 이상의 명상, 요가
+            또는 가벼운 운동을 통해 심신의 긴장을 해소하고, 감정을 효과적으로
+            다스리는 방법을 익히세요.
+          </li>
+          <li>
+            <strong>즉흥적 활동:</strong> 주 1회 '즉흥 데이'를 지정해, 미리
+            계획하지 않은 새로운 활동(즉석 산책, 새로운 음식점 탐방, 문화 체험
+            등)을 통해 일상의 변화를 즐기세요.
+          </li>
+          <li>
+            <strong>목표 달성 체크리스트:</strong> 주간 및 월간 목표를 기록하고
+            달성 여부를 평가하는 자기 평가 시스템을 도입하여, 지속적으로 개선
+            방향을 모색하세요.
+          </li>
+          <li>
+            <strong>창의력 브레인스토밍:</strong> 소규모 그룹 또는 혼자서
+            정기적으로 아이디어를 공유하며, 새로운 관점과 해결책을 탐색하는
+            시간을 가지세요.
+          </li>
+          <li>
+            <strong>강점 활용 및 약점 보완:</strong> 자신의 강점을 토대로 부족한
+            부분을 보완할 수 있는 구체적인 전략을 수립하고, 이를 실천하며 매월
+            평가하여 점진적으로 발전시키세요.
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="footer-box">
+      만든이: 핏빛 초콜릿<br />
+      advised by "KJH"
+    </div>
+
+    <script>
+      // ===== (1) 50개의 질문 (연애·일상생활 중심) =====
+      // E-I: 13문항, S-N: 12문항, T-F: 12문항, J-P: 13문항
+      const questions = [
+        // E-I (13문항)
+        {
+          text: "1. 주말에 약속이 없을 때, 나는 주로:",
+          category: "E-I",
+          options: [
+            "여러 사람에게 먼저 연락해 모임을 만든다",
+            "가끔은 가까운 친구 한두 명만 부른다",
+            "에라~ 모르겠다",
+            "가끔은 약속을 잡지 않고 기다린다",
+            "혼자 집에서 시간을 보내며 쉬는 편이다",
+          ],
+        },
+        {
+          text: "2. 연애 초기에 상대방에게 마음을 표현할 때, 나는:",
+          category: "E-I",
+          options: [
+            "직접적으로 호감 표현을 하고 연락을 자주 한다",
+            "가끔은 주변 친구를 통해 살짝 떠본다",
+            "에라~ 모르겠다",
+            "가끔은 내가 먼저 다가가기 조심스러워한다",
+            "상대가 먼저 신호를 보낼 때까지 기다린다",
+          ],
+        },
+        {
+          text: "3. 여행을 계획할 때, 나는:",
+          category: "E-I",
+          options: [
+            "여러 명이 함께하는 단체 여행을 즐긴다",
+            "가끔은 친한 친구 2~3명만 초대한다",
+            "에라~ 모르겠다",
+            "가끔은 동행자를 찾지 못하면 포기한다",
+            "혼자 여행을 하며 나만의 시간을 가진다",
+          ],
+        },
+        {
+          text: "4. 친구들과 모임을 가질 때, 나는 주로:",
+          category: "E-I",
+          options: [
+            "처음 보는 사람과도 쉽게 친해진다",
+            "가끔은 친해지고 싶은 사람에게만 다가간다",
+            "에라~ 모르겠다",
+            "가끔은 분위기를 보고 조용히 지켜본다",
+            "잘 모르는 사람들과는 말이 적다",
+          ],
+        },
+        {
+          text: "5. 데이트 코스를 짤 때, 나는:",
+          category: "E-I",
+          options: [
+            "다양한 액티비티를 함께하며 에너지를 발산한다",
+            "가끔은 조용한 카페나 식당을 선호한다",
+            "에라~ 모르겠다",
+            "가끔은 상대에게 모든 걸 맡긴다",
+            "조용하고 한적한 곳에서 오붓하게 시간을 보낸다",
+          ],
+        },
+        {
+          text: "6. 낯선 사람을 소개받는 자리에 갈 때, 나는:",
+          category: "E-I",
+          options: [
+            "먼저 말을 걸고 적극적으로 분위기를 주도한다",
+            "가끔은 분위기를 보고 타이밍을 찾는다",
+            "에라~ 모르겠다",
+            "가끔은 말 없이 관찰부터 한다",
+            "상대가 먼저 다가오길 기다린다",
+          ],
+        },
+        {
+          text: "7. 새로운 취미 동호회에 가입할 때, 나는:",
+          category: "E-I",
+          options: [
+            "회원들과 빠르게 친해지고 여러 활동을 제안한다",
+            "가끔은 소수와 친해지는 데 집중한다",
+            "에라~ 모르겠다",
+            "가끔은 분위기를 충분히 파악한 뒤 참여한다",
+            "천천히 적응하며 조용히 활동한다",
+          ],
+        },
+        {
+          text: "8. 파티에서 처음 만난 사람과 대화할 때, 나는:",
+          category: "E-I",
+          options: [
+            "나를 소개하고 상대 이야기를 적극적으로 물어본다",
+            "가끔은 대화 주제를 미리 생각해둔다",
+            "에라~ 모르겠다",
+            "가끔은 상대가 먼저 질문할 때까지 기다린다",
+            "말 걸기보다는 관찰하며 분위기를 본다",
+          ],
+        },
+        {
+          text: "9. 이성과의 만남에서 호감이 있을 때, 나는:",
+          category: "E-I",
+          options: [
+            "바로 연락처를 물어보고 만날 약속을 잡는다",
+            "가끔은 주변 상황을 보고 타이밍을 조절한다",
+            "에라~ 모르겠다",
+            "가끔은 내 감정을 솔직히 표현하기 어렵다",
+            "상대가 먼저 표현하기를 기다린다",
+          ],
+        },
+        {
+          text: "10. 여럿이 모이는 소개팅(미팅) 자리에 가면, 나는:",
+          category: "E-I",
+          options: [
+            "전체 분위기를 주도하고 적극적으로 이야기한다",
+            "가끔은 괜찮은 상대에게만 집중한다",
+            "에라~ 모르겠다",
+            "가끔은 사람들의 대화를 듣기만 한다",
+            "조용히 앉아있다가 필요한 말만 한다",
+          ],
+        },
+        {
+          text: "11. 사람이 많은 장소(클럽, 페스티벌 등)에서 나는:",
+          category: "E-I",
+          options: [
+            "에너지가 솟아 즐겁게 뛰어논다",
+            "가끔은 너무 시끄러우면 피곤해진다",
+            "에라~ 모르겠다",
+            "가끔은 조용한 공간을 찾아 휴식한다",
+            "사람이 많으면 쉽게 지쳐버린다",
+          ],
+        },
+        {
+          text: "12. 연인과 데이트 후 집에 돌아왔을 때, 나는:",
+          category: "E-I",
+          options: [
+            "오히려 기분이 올라서 추가 약속을 잡고 싶어진다",
+            "가끔은 피곤하지만 즐거운 편이다",
+            "에라~ 모르겠다",
+            "가끔은 혼자만의 시간이 필요하다고 느낀다",
+            "바로 집에서 조용히 쉬며 에너지를 회복한다",
+          ],
+        },
+        {
+          text: "13. 일상 속 소소한 모임(스터디, 동호회 등)을 마친 후, 나는:",
+          category: "E-I",
+          options: [
+            "다음 모임도 적극적으로 계획하고 싶어진다",
+            "가끔은 마음에 맞는 소수와만 더 친해진다",
+            "에라~ 모르겠다",
+            "가끔은 조금 피곤하지만 보람 있다",
+            "집에 와서 혼자만의 시간을 즐긴다",
+          ],
+        },
+        // S-N (12문항)
+        {
+          text: "14. 데이트나 여행 코스를 정할 때, 나는:",
+          category: "S-N",
+          options: [
+            "구체적인 장소와 시간표를 정확히 계획한다",
+            "가끔은 인터넷 후기만 대략 확인한다",
+            "에라~ 모르겠다",
+            "가끔은 느낌대로 대략적인 윤곽만 잡는다",
+            "즉흥적으로 새로운 아이디어를 시도한다",
+          ],
+        },
+        {
+          text: "15. 상대방이 선물을 줄 때, 나는:",
+          category: "S-N",
+          options: [
+            "실용적이고 당장 쓸 수 있는 물건을 선호한다",
+            "가끔은 예쁘면 된다고 생각한다",
+            "에라~ 모르겠다",
+            "가끔은 의미나 스토리가 있는 선물이 좋다",
+            "독특하고 상징적인 선물을 더 좋아한다",
+          ],
+        },
+        {
+          text: "16. 연인의 말투나 행동을 볼 때, 나는:",
+          category: "S-N",
+          options: [
+            "직접적으로 드러나는 표현과 습관을 중요하게 본다",
+            "가끔은 구체적 행동만 체크한다",
+            "에라~ 모르겠다",
+            "가끔은 그 말 뒤에 숨은 의도를 생각한다",
+            "상대방의 내면 동기와 미래 지향을 더 궁금해한다",
+          ],
+        },
+        {
+          text: "17. 드라마나 영화를 볼 때, 나는:",
+          category: "S-N",
+          options: [
+            "현실적이고 공감 가는 스토리를 더 좋아한다",
+            "가끔은 화려한 장면이나 실제 사례를 중시한다",
+            "에라~ 모르겠다",
+            "가끔은 상징적 표현이나 큰 메시지를 본다",
+            "독특하고 철학적인 주제가 더 끌린다",
+          ],
+        },
+        {
+          text: "18. 소개팅에서 상대 직업이나 정보를 들을 때, 나는:",
+          category: "S-N",
+          options: [
+            "구체적인 스펙이나 현실적 정보부터 확인한다",
+            "가끔은 실제로 뭘 하는지 정도만 파악한다",
+            "에라~ 모르겠다",
+            "가끔은 그 직업의 발전 가능성이나 비전을 상상한다",
+            "미래 잠재력과 가치관이 어떻게 맞을지 궁금해한다",
+          ],
+        },
+        {
+          text: "19. 일상에서 문제가 생기면, 나는:",
+          category: "S-N",
+          options: [
+            "당장 해결 가능한 방법과 사례를 찾는다",
+            "가끔은 주변 사람들의 조언을 먼저 구한다",
+            "에라~ 모르겠다",
+            "가끔은 전체 흐름과 의미를 고민한다",
+            "새로운 시각이나 아이디어로 접근하려 한다",
+          ],
+        },
+        {
+          text: "20. 친구가 연애 고민을 털어놓으면, 나는:",
+          category: "S-N",
+          options: [
+            "구체적 상황과 증거를 들어가며 해결책을 제안한다",
+            "가끔은 현실적인 조언부터 건넨다",
+            "에라~ 모르겠다",
+            "가끔은 관계의 근본적인 의미나 심리를 분석한다",
+            "상대방의 깊은 동기와 미래 방향을 먼저 본다",
+          ],
+        },
+        {
+          text: "21. 집안 인테리어를 바꿀 때, 나는:",
+          category: "S-N",
+          options: [
+            "실용적이고 깔끔한 구조를 우선한다",
+            "가끔은 가구 배치를 조금만 바꾼다",
+            "에라~ 모르겠다",
+            "가끔은 트렌드나 디자인 컨셉을 먼저 찾는다",
+            "독창적이고 예술적인 느낌을 최우선으로 본다",
+          ],
+        },
+        {
+          text: "22. 상대방과 미래를 이야기할 때, 나는:",
+          category: "S-N",
+          options: [
+            "현재 상황과 현실적인 계획을 우선 고려한다",
+            "가끔은 눈앞의 문제부터 해결하자고 말한다",
+            "에라~ 모르겠다",
+            "가끔은 더 큰 가능성을 얘기하며 설레한다",
+            "함께 만들어갈 비전과 꿈을 중요하게 본다",
+          ],
+        },
+        {
+          text: "23. 취미나 관심사를 선택할 때, 나는:",
+          category: "S-N",
+          options: [
+            "즉각적인 결과와 실용성이 있어야 끌린다",
+            "가끔은 주변에서 유행하는 걸 해본다",
+            "에라~ 모르겠다",
+            "가끔은 독특하고 새로운 분야를 시도한다",
+            "미래적으로 확장 가능성이 있는 것을 선호한다",
+          ],
+        },
+        {
+          text: "24. 사람을 만날 때, 나는:",
+          category: "S-N",
+          options: [
+            "현실적인 태도와 구체적 정보가 중요한 사람에게 끌린다",
+            "가끔은 말이 잘 통하는 사람이면 충분하다",
+            "에라~ 모르겠다",
+            "가끔은 영감과 통찰을 나눌 수 있는 사람을 찾는다",
+            "이상과 비전을 공유할 수 있는 사람에게 매력을 느낀다",
+          ],
+        },
+        {
+          text: "25. 새로운 기술이나 트렌드가 생기면, 나는:",
+          category: "S-N",
+          options: [
+            "당장 활용할 수 있는 방법을 우선 찾는다",
+            "가끔은 대충 알아보고 필요한 만큼만 쓴다",
+            "에라~ 모르겠다",
+            "가끔은 미래에 어떻게 변화할지 상상한다",
+            "혁신적 가능성과 발전 방향을 더 주목한다",
+          ],
+        },
+        // T-F (12문항)
+        {
+          text: "26. 연인이 고민을 털어놓을 때, 나는:",
+          category: "T-F",
+          options: [
+            "객관적으로 문제의 원인과 해결책을 분석해준다",
+            "가끔은 간단한 조언만 건넨다",
+            "에라~ 모르겠다",
+            "가끔은 감정적으로 공감하고 위로해준다",
+            "충분히 마음을 들어주고 함께 공감해준다",
+          ],
+        },
+        {
+          text: "27. 친구와 다툼이 생겼을 때, 나는:",
+          category: "T-F",
+          options: [
+            "논리적으로 상황을 정리하고 옳고 그름을 따진다",
+            "가끔은 원칙대로 처리하되 약간은 배려한다",
+            "에라~ 모르겠다",
+            "가끔은 상대 감정을 달래며 대화를 시도한다",
+            "서로의 마음이 다치지 않도록 감정을 우선 배려한다",
+          ],
+        },
+        {
+          text: "28. 업무나 학업에서 내 행동을 비판받을 때, 나는:",
+          category: "T-F",
+          options: [
+            "논리적으로 반박하거나 잘못된 부분을 바로잡는다",
+            "가끔은 사실 관계만 간단히 해명한다",
+            "에라~ 모르겠다",
+            "가끔은 내 감정을 먼저 표현한다",
+            "상대방의 기분을 우선 이해하고 사과부터 한다",
+          ],
+        },
+        {
+          text: "29. 상대방의 실수를 봤을 때, 나는:",
+          category: "T-F",
+          options: [
+            "원인과 책임을 명확히 짚고 교정하려 한다",
+            "가끔은 사실 확인 후 지적한다",
+            "에라~ 모르겠다",
+            "가끔은 상대 감정을 생각해 부드럽게 조언한다",
+            "실수 자체보다 상대방의 마음 상태를 먼저 살핀다",
+          ],
+        },
+        {
+          text: "30. 중요한 결정을 내릴 때, 나는:",
+          category: "T-F",
+          options: [
+            "데이터와 논리에 근거해 합리적으로 판단한다",
+            "가끔은 주위 상황을 참고하되 원칙을 중시한다",
+            "에라~ 모르겠다",
+            "가끔은 주변 사람들의 기분을 고려한다",
+            "사람들의 감정과 관계를 우선해서 결정한다",
+          ],
+        },
+        {
+          text: "31. 소개팅에서 상대방을 평가할 때, 나는:",
+          category: "T-F",
+          options: [
+            "직업, 가치관 등을 논리적으로 분석해본다",
+            "가끔은 대화 속 정보로 장단점을 파악한다",
+            "에라~ 모르겠다",
+            "가끔은 대화 분위기와 느낌을 중요하게 본다",
+            "상대방이 보여주는 따뜻함이나 배려심을 가장 중요하게 본다",
+          ],
+        },
+        {
+          text: "32. 친구와 얘기하다가 의견 차이가 나면, 나는:",
+          category: "T-F",
+          options: [
+            "논리적으로 토론하여 결론을 내린다",
+            "가끔은 팩트만 제시하고 결론은 상대에게 맡긴다",
+            "에라~ 모르겠다",
+            "가끔은 감정적으로 대응하지 않으려 노력한다",
+            "상대의 감정을 배려하며 타협점을 찾는다",
+          ],
+        },
+        {
+          text: "33. 스트레스 상황에서, 나는:",
+          category: "T-F",
+          options: [
+            "문제의 원인을 분석해 해결책을 우선 찾는다",
+            "가끔은 조용히 생각을 정리하고 계획한다",
+            "에라~ 모르겠다",
+            "가끔은 감정 표현을 통해 스트레스를 푼다",
+            "주변 사람과 감정을 나누며 위로를 얻는다",
+          ],
+        },
+        {
+          text: "34. 연인과 갈등이 있을 때, 나는:",
+          category: "T-F",
+          options: [
+            "서로의 잘못된 점을 객관적으로 짚고 해결하려 한다",
+            "가끔은 내 입장을 조리 있게 설명한다",
+            "에라~ 모르겠다",
+            "가끔은 상대방 감정을 먼저 헤아린다",
+            "갈등보다는 관계 유지와 감정 회복이 우선이다",
+          ],
+        },
+        {
+          text: "35. 누군가 내 행동을 지적하면, 나는:",
+          category: "T-F",
+          options: [
+            "합당한 지적이면 바로 수정하려고 한다",
+            "가끔은 이성적으로 판단 후 받아들인다",
+            "에라~ 모르겠다",
+            "가끔은 상처받아 속으로 삭인다",
+            "지적보다는 따뜻한 조언을 더 바란다",
+          ],
+        },
+        {
+          text: "36. 사랑 고백을 할 때, 나는:",
+          category: "T-F",
+          options: [
+            "솔직하고 직접적으로 내 마음을 말한다",
+            "가끔은 이성적으로 말할지 감정적으로 말할지 고민한다",
+            "에라~ 모르겠다",
+            "가끔은 내 진심이 잘 전해지도록 분위기를 만든다",
+            "상대가 편하게 느낄 방법을 고민하며 부드럽게 고백한다",
+          ],
+        },
+        {
+          text: "37. 주변 사람이 어려움에 처했을 때, 나는:",
+          category: "T-F",
+          options: [
+            "해결책과 자원 등을 구체적으로 제공하려 한다",
+            "가끔은 문제의 핵심을 분석해 도움을 준다",
+            "에라~ 모르겠다",
+            "가끔은 위로와 공감을 먼저 해주려 한다",
+            "감정적으로 함께해 주고 마음을 다독여준다",
+          ],
+        },
+        // J-P (13문항)
+        {
+          text: "38. 주말 데이트나 약속 일정을 잡을 때, 나는:",
+          category: "J-P",
+          options: [
+            "세부 계획을 꼼꼼히 수립한다",
+            "가끔은 간단한 일정만 잡고 움직인다",
+            "에라~ 모르겠다",
+            "가끔은 당일 컨디션에 따라 바꾼다",
+            "즉흥적인 분위기와 즉석 결정을 선호한다",
+          ],
+        },
+        {
+          text: "39. 휴가나 여행을 갈 때, 나는:",
+          category: "J-P",
+          options: [
+            "미리 비행기·숙소 등 모든 예약을 확실히 해둔다",
+            "가끔은 대략적인 것만 잡고 간다",
+            "에라~ 모르겠다",
+            "가끔은 현지에서 즉석으로 바꿀 수도 있다",
+            "즉흥적으로 새로운 곳을 탐험하는 편이다",
+          ],
+        },
+        {
+          text: "40. 데드라인이 있는 과제나 일이 있을 때, 나는:",
+          category: "J-P",
+          options: [
+            "일정을 앞당겨 여유 있게 마무리한다",
+            "가끔은 중간 정도 시점에 집중한다",
+            "에라~ 모르겠다",
+            "가끔은 마감 임박해서 몰아서 한다",
+            "마감 직전에 집중력이 터져서 마무리하는 편이다",
+          ],
+        },
+        {
+          text: "41. 데이트 코스를 정할 때, 나는:",
+          category: "J-P",
+          options: [
+            "처음부터 끝까지 단계별로 미리 짜둔다",
+            "가끔은 메인 장소만 정하고 세부는 대충 잡는다",
+            "에라~ 모르겠다",
+            "가끔은 상대 의견을 들어보고 즉흥으로 조정한다",
+            "전반적인 분위기만 생각하고 즉석에서 결정한다",
+          ],
+        },
+        {
+          text: "42. 중요한 결정을 내릴 때, 나는:",
+          category: "J-P",
+          options: [
+            "빠르게 결론을 내고 그대로 실행한다",
+            "가끔은 충분히 생각한 뒤 확정한다",
+            "에라~ 모르겠다",
+            "가끔은 다양한 옵션을 살펴본 후 천천히 결정한다",
+            "가능한 많은 선택지를 열어두고 신중하게 고민한다",
+          ],
+        },
+        {
+          text: "43. 사람들과 약속을 잡을 때, 나는:",
+          category: "J-P",
+          options: [
+            "시간·장소를 확실히 정하고 공지한다",
+            "가끔은 대충 어느 정도만 정한다",
+            "에라~ 모르겠다",
+            "가끔은 당일에 의견을 모아 결정한다",
+            "모두의 즉흥적인 의견에 맡긴다",
+          ],
+        },
+        {
+          text: "44. 이벤트 준비 시, 나는:",
+          category: "J-P",
+          options: [
+            "세부 계획을 꼼꼼히 수립한다",
+            "가끔은 큰 틀만 정해두고 세부는 융통성 있게 본다",
+            "에라~ 모르겠다",
+            "가끔은 분위기에 따라 즉흥적으로 진행한다",
+            "전반적인 분위기만 잡고 즉흥적으로 준비한다",
+          ],
+        },
+        {
+          text: "45. 갑작스러운 변화가 생길 때, 나는:",
+          category: "J-P",
+          options: [
+            "사전에 마련된 대처 방법을 즉시 적용한다",
+            "가끔은 약간의 수정으로 해결한다",
+            "에라~ 모르겠다",
+            "가끔은 상황을 보며 유연하게 대응한다",
+            "즉흥적으로 새로운 방법을 찾아 즉시 전환한다",
+          ],
+        },
+        {
+          text: "46. 모임에서 장소나 시간을 바꿔야 할 상황이 생기면, 나는:",
+          category: "J-P",
+          options: [
+            "이미 잡은 계획대로 하자고 주장한다",
+            "가끔은 조금만 수정해서 진행한다",
+            "에라~ 모르겠다",
+            "가끔은 의견을 모아 유연하게 변경한다",
+            "즉석에서 새로운 옵션을 제시해 본다",
+          ],
+        },
+        {
+          text: "47. 일상 루틴(운동, 식사 등)을 관리할 때, 나는:",
+          category: "J-P",
+          options: [
+            "정해진 계획표에 따라 정확히 실행한다",
+            "가끔은 조금 융통성을 두고 진행한다",
+            "에라~ 모르겠다",
+            "가끔은 오늘 기분에 따라 변동시킨다",
+            "엄격한 계획 없이 즉흥적으로 한다",
+          ],
+        },
+        {
+          text: "48. 중요한 약속을 잡을 때, 나는:",
+          category: "J-P",
+          options: [
+            "정확한 시간과 장소를 미리 정해둔다",
+            "가끔은 대략적인 시간만 정하고 장소는 추후 확정한다",
+            "에라~ 모르겠다",
+            "가끔은 약속 당일에 최종 결정한다",
+            "즉흥적으로 흘러가는 대로 맡긴다",
+          ],
+        },
+        {
+          text: "49. 새로운 프로젝트나 과제를 시작할 때, 나는:",
+          category: "J-P",
+          options: [
+            "전체적인 계획과 목표를 명확히 설정한다",
+            "가끔은 큰 목표만 잡고 중간은 유동적으로 본다",
+            "에라~ 모르겠다",
+            "가끔은 시작 후 상황에 따라 계획을 세운다",
+            "즉흥적으로 아이디어가 떠오르는 대로 진행한다",
+          ],
+        },
+        {
+          text: "50. 업무나 학업에서, 나는:",
+          category: "J-P",
+          options: [
+            "체계적 구조와 규칙을 따르는 것이 편하다",
+            "가끔은 기본 틀 안에서만 움직인다",
+            "에라~ 모르겠다",
+            "가끔은 즉흥적으로 방법을 바꾸기도 한다",
+            "자유롭고 유연한 방식을 선호한다",
+          ],
+        },
+      ];
+
+      // ===== (2) MBTI 16가지 유형 간단 소개 =====
+      const typeDescriptions = {
+        ISTJ: "체계적이고 신뢰할 수 있는 관리자 유형입니다.",
+        ISFJ: "헌신적이고 따뜻한 수호자 유형입니다.",
+        INFJ: "깊은 통찰력과 공감 능력을 가진 이상주의자입니다.",
+        INTJ: "전략적이고 독립적인 혁신가 유형입니다.",
+        ISTP: "실용적이며 문제 해결에 뛰어난 탐험가입니다.",
+        ISFP: "예술적 감성과 온화한 성격의 탐험가입니다.",
+        INFP: "이상과 감성을 소중히 여기는 중재자 유형입니다.",
+        INTP: "논리적 분석과 창의적 아이디어가 풍부한 사색가입니다.",
+        ESTP: "활동적이고 현실적인 모험가 유형입니다.",
+        ESFP: "열정적이고 사교적인 연예인 유형입니다.",
+        ENFP: "창의적이며 열정적인 자유로운 영혼 유형입니다.",
+        ENTP: "혁신적이며 도전적인 발명가 유형입니다.",
+        ESTJ: "효율적이며 현실적인 리더 유형입니다.",
+        ESFJ: "사교적이고 배려심 깊은 공동체 지향형입니다.",
+        ENFJ: "카리스마와 영감을 주는 지도자 유형입니다.",
+        ENTJ: "대담하고 결단력 있는 지도자 유형입니다.",
+      };
+
+      // ===== (3) MBTI 유형별 상세 분석 =====
+      // ISTJ 유형에 대해 칼 융 이론 기반 주요 기능 스택, 나와 맞는 이성의 MBTI, 개선 트레이닝을 상세하게 보강함.
+      const typeAnalysis = {
+        ISTJ: {
+          jungFunctions: `
+          칼 융의 <em>심리학적 유형</em>에 따르면, ISTJ의 주 기능은 <strong>외향적 사고 (Extraverted Thinking, Te)</strong>입니다.  
+          이 기능은 현실 세계의 정보를 객관적으로 분석하여 효율적 문제 해결 및 의사결정을 가능하게 하며, 체계적인 사고를 촉진합니다.  
+          보조 기능인 <strong>내향적 감각 (Introverted Sensing, Si)</strong>은 과거의 경험과 전통, 세부 정보를 체계적으로 저장해  
+          신뢰할 수 있는 내부 기준을 마련합니다.  
+          이 두 기능의 결합은 ISTJ가 명확한 체계와 계획 아래 안정적인 성과를 내도록 돕지만,  
+          지나친 보수성과 고정관념에 머무를 위험도 내포하고 있습니다.
+        `,
+          strengths:
+            "세부 사항에 강하며, 책임감 있고 체계적인 판단력을 보유합니다.",
+          weaknesses:
+            "과거 경험과 전통에 지나치게 의존해 변화나 새로운 아이디어에 융통성 있게 대응하기 어렵습니다.",
+          balance:
+            "정해진 틀을 벗어나 창의적이고 즉흥적인 경험을 통해 새로운 관점을 받아들일 필요가 있습니다.",
+          careers:
+            "회계, 공무원, 행정, 법률 등 명확한 체계와 규칙이 요구되는 분야에서 뛰어난 성과를 보입니다.",
+          idealPartner: `
+          ISTJ와 잘 맞는 파트너는 주로 ESFJ와 ESTJ 유형입니다.  
+          <strong>ESFJ</strong>는 따뜻한 외향적 감정(Fe)을 바탕으로, ISTJ가 내면에 쌓기 쉬운 감정을 부드럽게 표출하도록 돕습니다.  
+          ESFJ의 공감 능력과 인간미는 ISTJ가 때때로 느끼는 정서적 고립감을 해소하며,  
+          그들의 적극적이고 사교적인 태도는 ISTJ에게 새로운 사회적 자극과 힐링을 제공합니다.  
+          <strong>ESTJ</strong>는 조직적이고 체계적인 사고를 공유하면서, ISTJ에게 보다 적극적인 대인관계를 경험하게 해 주어,  
+          고정된 사고 패턴에 머무르지 않고 변화와 도전에 대한 긍정적 자극을 줍니다.  
+          이처럼, ESFJ와 ESTJ 모두 ISTJ에게 정서적 안정과 새로운 사회적 경험을 제공하여,  
+          ISTJ가 가진 보수적이고 고립된 성향을 극복하는 데 큰 힐링과 도움을 줍니다.
+        `,
+          training: `
+          1) 취미 활동: 평소 익숙한 활동을 벗어나, 미술, 음악, 댄스, 여행 등 전혀 다른 분야에 주 1회 도전해 보세요.  
+             이러한 새로운 경험은 기존의 틀을 깨고 창의적 사고와 융통성을 기르는 데 큰 도움이 됩니다.
+          2) 업무 관리: 철저한 계획 수립 외에도, 프로젝트 진행 중 정기적으로 '아이디어 브레인스토밍' 세션을 마련하여  
+             예상치 못한 변수에도 유연하게 대응하는 연습을 하세요. 팀 내 다양한 의견을 수렴하고 협력적인 문제 해결 방법을 모색하세요.
+          3) 대인관계: 매주 팀원이나 친구와 정기적인 피드백 세션을 갖고,  
+             자신의 감정을 솔직하게 표현하면서 동시에 상대방의 의견을 경청하는 연습을 꾸준히 하세요.  
+             커뮤니케이션 워크숍이나 역할 놀이를 통해 부드럽고 효과적인 소통 기술을 개발하세요.
+          4) 일상 변화: 주 1회 '즉흥 데이'를 지정하여, 미리 계획하지 않은 새로운 활동(예: 즉석 산책, 새로운 음식점 탐방, 예상치 못한 문화 체험 등)을 경험해 보세요.  
+             이러한 즉흥적 경험은 고정된 루틴에서 벗어나 창의적 사고와 유연성을 촉진합니다.
+          5) 자기계발: 평소 관심 없던 분야의 도서나 강의를 통해 새로운 관점을 배우고,  
+             이를 바탕으로 주간 목표를 재설정하는 습관을 들이세요.  
+             자신의 강점과 약점을 객관적으로 분석하며 지속적인 개선 방안을 마련하는 것이 장기적인 발전에 필수적입니다.
+        `,
+        },
+        ISFJ: {
+          jungFunctions:
+            "Dominant: Introverted Sensing (Si), Auxiliary: Extraverted Feeling (Fe)",
+          strengths:
+            "헌신적이며 타인의 필요를 세심하게 챙기는 따뜻한 수호자입니다.",
+          weaknesses:
+            "자신의 감정을 드러내지 않아 스트레스가 쌓일 수 있습니다.",
+          balance: "자신의 감정도 중요시하며 취미나 자기계발에 투자해보세요.",
+          careers:
+            "간호, 사회복지, 교육, 상담 등 봉사와 책임감이 요구되는 분야",
+          idealPartner: "INFJ 또는 ISFP 유형처럼 감성적이고 이해심 있는 파트너",
+          training: "감정 표현과 자기 돌봄 훈련으로 내면의 균형을 맞춰보세요.",
+        },
+        INFJ: {
+          jungFunctions:
+            "Dominant: Introverted Intuition (Ni), Auxiliary: Extraverted Feeling (Fe)",
+          strengths:
+            "깊은 통찰력과 공감 능력으로 주변을 이끄는 이상주의자입니다.",
+          weaknesses: "이상에 집착해 현실과 괴리될 위험이 있습니다.",
+          balance: "구체적인 목표 설정과 체계적 계획으로 꿈을 실현해보세요.",
+          careers:
+            "심리학, 예술, 상담, 교육, 인권 분야 등 인간 이해와 비전을 요하는 직업",
+          idealPartner: "ENFP, ENFJ 같은 열정적이고 창의적인 파트너",
+          training:
+            "작은 성공 경험을 쌓으며 현실적인 실행력을 기르는 훈련을 해보세요.",
+        },
+        INTJ: {
+          jungFunctions:
+            "Dominant: Introverted Intuition (Ni), Auxiliary: Extraverted Thinking (Te)",
+          strengths:
+            "전략적 사고와 독립성이 돋보이며, 혁신적인 아이디어 생성에 능합니다.",
+          weaknesses:
+            "감정 표현이 서툴러 인간관계에서 소통에 어려움이 있을 수 있습니다.",
+          balance: "타인의 의견을 경청하고 감정 교류를 늘려보세요.",
+          careers:
+            "과학, 기술, 연구, 경영 전략 분야 등 복잡한 문제 해결이 요구되는 분야",
+          idealPartner: "ENTJ, ENTP 등 지적이고 도전적인 파트너",
+          training: "의사소통 스킬과 감정 인식 훈련을 꾸준히 연습해보세요.",
+        },
+        ISTP: {
+          jungFunctions:
+            "Dominant: Introverted Thinking (Ti), Auxiliary: Extraverted Sensing (Se)",
+          strengths: "실용적이며 문제 해결에 뛰어난 모험가입니다.",
+          weaknesses: "장기 계획 수립과 감정적 소통에 소홀할 수 있습니다.",
+          balance:
+            "미래 계획을 세우고 가까운 사람들과 감정을 공유하는 연습을 해보세요.",
+          careers:
+            "기술, 공학, 스포츠, 응급 구조 등 즉각적 문제 해결 능력이 필요한 분야",
+          idealPartner: "ISFP, INFP 등 감성적이면서도 이해심 많은 파트너",
+          training: "장기 목표 설정과 시간 관리 훈련을 통해 체계성을 기르세요.",
+        },
+        ISFP: {
+          jungFunctions:
+            "Dominant: Introverted Feeling (Fi), Auxiliary: Extraverted Sensing (Se)",
+          strengths: "예술적 감성과 따뜻한 마음으로 주변을 편안하게 만듭니다.",
+          weaknesses:
+            "내면에 치우쳐 소극적일 때가 있으며, 계획성이 부족할 수 있습니다.",
+          balance: "자신의 감정을 표현하고 적극적으로 소통해보세요.",
+          careers:
+            "디자인, 예술, 패션, 요리, 자연 관련 분야 등 미적 감각과 감정 표현이 중요한 곳",
+          idealPartner: "ESFP, ISFP, INFP 등 감성적이고 자유로운 파트너",
+          training: "작은 모임에서 자신의 의견을 표현하는 연습을 해보세요.",
+        },
+        INFP: {
+          jungFunctions:
+            "Dominant: Introverted Feeling (Fi), Auxiliary: Extraverted Intuition (Ne)",
+          strengths:
+            "이상과 감성을 소중히 여기며 창의적 사고가 뛰어난 중재자입니다.",
+          weaknesses: "현실적인 문제 해결과 결단력이 부족할 수 있습니다.",
+          balance: "구체적인 실행 계획과 작은 목표를 설정해 실천해보세요.",
+          careers:
+            "문학, 예술, 상담, 비영리 및 창작 관련 분야 등 가치 지향적 직업",
+          idealPartner:
+            "ENFJ, INFJ 등 공감 능력이 뛰어나고 이상을 이해해주는 파트너",
+          training:
+            "작은 성공 경험을 통해 자신감을 쌓고 실행력을 강화해보세요.",
+        },
+        INTP: {
+          jungFunctions:
+            "Dominant: Introverted Thinking (Ti), Auxiliary: Extraverted Intuition (Ne)",
+          strengths: "논리적이며 창의적인 아이디어가 풍부한 사색가입니다.",
+          weaknesses: "세부 실행과 감정적 소통에 어려움이 있을 수 있습니다.",
+          balance: "구체적인 실행 계획과 팀워크를 강화해보세요.",
+          careers:
+            "연구, 개발, 학계, IT, 컨설팅 분야 등 지적 호기심이 필요한 직업",
+          idealPartner: "ENTP, INTP 등 지적이고 독창적인 파트너",
+          training:
+            "실행력을 높이기 위한 시간 관리와 목표 설정 연습을 해보세요.",
+        },
+        ESTP: {
+          jungFunctions:
+            "Dominant: Extraverted Sensing (Se), Auxiliary: Introverted Thinking (Ti)",
+          strengths:
+            "활동적이며 위기 상황에서 빠른 판단을 내리는 모험가입니다.",
+          weaknesses:
+            "장기적인 계획보다는 순간의 즐거움을 우선시할 수 있습니다.",
+          balance: "장기 목표를 세우고 체계적인 계획을 마련해보세요.",
+          careers:
+            "판매, 마케팅, 스포츠, 이벤트 기획, 응급 구조 등 액션 지향적 분야",
+          idealPartner: "ESFP, ENFP 등 활발하고 열정적인 파트너",
+          training: "목표 설정과 자기 규율을 기르는 훈련을 해보세요.",
+        },
+        ESFP: {
+          jungFunctions:
+            "Dominant: Extraverted Sensing (Se), Auxiliary: Introverted Feeling (Fi)",
+          strengths:
+            "열정적이며 사교적인 에너지로 주변에 긍정적인 영향을 줍니다.",
+          weaknesses: "즉흥적인 성향으로 인해 계획성이 부족할 수 있습니다.",
+          balance: "중요한 일에는 기본적인 계획을 세워보세요.",
+          careers:
+            "엔터테인먼트, 이벤트 기획, 관광, 서비스업, 판매 등 사람과 즐거움을 다루는 분야",
+          idealPartner: "ESTP, ESFJ 등 사교적이고 현실적인 파트너",
+          training: "시간 관리와 계획 수립 습관을 기르는 연습을 해보세요.",
+        },
+        ENFP: {
+          jungFunctions:
+            "Dominant: Extraverted Intuition (Ne), Auxiliary: Introverted Feeling (Fi)",
+          strengths:
+            "창의적이며 열정적인 아이디어와 인간관계를 즐기는 자유로운 영혼입니다.",
+          weaknesses:
+            "너무 많은 아이디어로 인해 집중력과 마무리가 부족할 수 있습니다.",
+          balance: "우선순위를 정하고 한 가지 목표에 집중해보세요.",
+          careers:
+            "미디어, 광고, 예술, 창업, 교육 등 창의성과 인간관계가 중요한 분야",
+          idealPartner:
+            "INFJ, ENFJ 등 심오한 대화를 즐기고 이상을 공유하는 파트너",
+          training: "우선순위 정리와 단계별 목표 달성 연습을 해보세요.",
+        },
+        ENTP: {
+          jungFunctions:
+            "Dominant: Extraverted Intuition (Ne), Auxiliary: Introverted Thinking (Ti)",
+          strengths:
+            "혁신적이며 토론을 즐기고 새로운 아이디어 창출에 뛰어난 발명가입니다.",
+          weaknesses:
+            "토론에 몰두해 실행력이 부족하거나 결정을 미루는 경향이 있습니다.",
+          balance: "구체적인 실행 계획을 세우고 꾸준한 진행 상황을 점검하세요.",
+          careers:
+            "스타트업, 마케팅, 컨설팅, 기술 개발, 디자인 등 창의적 문제 해결이 필요한 분야",
+          idealPartner: "INTP, ENFP 등 창의적이고 도전적인 파트너",
+          training: "목표를 명확히 하고 작은 성공을 반복하는 습관을 기르세요.",
+        },
+        ESTJ: {
+          jungFunctions:
+            "Dominant: Extraverted Thinking (Te), Auxiliary: Introverted Sensing (Si)",
+          strengths:
+            "효율적이며 현실적인 리더로, 체계적인 계획과 실행을 중시합니다.",
+          weaknesses: "유연성이 부족해 타인의 감정을 간과할 때가 있습니다.",
+          balance: "다양한 의견을 수용하며 협력적 소통을 연습하세요.",
+          careers:
+            "경영, 행정, 군대, 제조, 프로젝트 관리 등 구조와 효율성이 중요한 분야",
+          idealPartner: "ISFJ, ESFJ, ISTJ 등 신뢰할 수 있고 안정적인 파트너",
+          training: "팀워크와 감성 인식 훈련을 통해 소통 능력을 강화하세요.",
+        },
+        ESFJ: {
+          jungFunctions:
+            "Dominant: Extraverted Feeling (Fe), Auxiliary: Introverted Sensing (Si)",
+          strengths:
+            "사교적이며 배려심 깊은 공동체 지향형으로, 따뜻한 인간관계를 만듭니다.",
+          weaknesses: "타인의 시선에 민감해 자신의 의견을 희생할 수 있습니다.",
+          balance: "자신의 욕구를 존중하며 건설적인 피드백을 받아들이세요.",
+          careers:
+            "교육, 간호, 사회복지, 이벤트 기획, 고객 서비스 등 사람과 협력하는 분야",
+          idealPartner: "ISFJ, ESFJ, ISTJ 등 안정적이고 성실한 파트너",
+          training:
+            "자신의 의견을 명확히 표현하고 리더십을 발휘할 수 있도록 훈련하세요.",
+        },
+        ENFJ: {
+          jungFunctions:
+            "Dominant: Extraverted Feeling (Fe), Auxiliary: Introverted Intuition (Ni)",
+          strengths:
+            "카리스마와 영감을 주며, 타인의 잠재력을 이끌어내는 지도자입니다.",
+          weaknesses: "타인의 기대에 부응하다 자신을 잃을 위험이 있습니다.",
+          balance: "자신의 감정과 필요를 우선시하며 균형을 맞추세요.",
+          careers: "교육, 상담, 마케팅, 리더십, 사회운동 등 사람을 이끄는 분야",
+          idealPartner: "INFP, ENFP 등 감성적이고 이상을 공유하는 파트너",
+          training: "자기 돌봄과 경계 설정을 통해 감성적 건강을 유지하세요.",
+        },
+        ENTJ: {
+          jungFunctions:
+            "Dominant: Extraverted Thinking (Te), Auxiliary: Introverted Intuition (Ni)",
+          strengths:
+            "대담하고 결단력 있는 지도자로, 목표 달성을 위해 체계적으로 움직입니다.",
+          weaknesses:
+            "지나친 통제욕과 경쟁심이 대인관계를 경직시킬 수 있습니다.",
+          balance: "팀원의 의견을 경청하고 협력의 가치를 실천하세요.",
+          careers:
+            "경영, 법률, 컨설팅, 기술, 금융 등 리더십과 전략이 중요한 분야",
+          idealPartner: "INTJ, ENTJ 등 지적이고 도전적인 파트너",
+          training:
+            "리더십과 감성 소통 훈련을 병행하며 유연한 소통 방식을 익히세요.",
+        },
+      };
+
+      // ===== (4) 차원별 자세한 설명 =====
+      const dimensionDescriptions = {
+        E: "외향형(Extraversion): 외부 세계와 활발히 상호작용하여 에너지를 얻습니다. 그러나 지나치게 외향적이면 내면 성찰 부족, 충동적 결정, 타인의 의견에 과도하게 의존할 위험이 있습니다.",
+        I: "내향형(Introversion): 내면의 깊은 성찰과 집중을 통해 자기 발전을 도모하지만, 과도하면 사회적 고립 및 의사소통 부족으로 발전 기회를 놓칠 수 있습니다.",
+        S: "감각형(Sensing): 구체적이고 현실적인 정보를 중시하며 세부 사항에 강하나, S 성향이 강하면 큰 그림이나 미래 지향적 사고를 간과할 수 있습니다.",
+        N: "직관형(iNtuition): 미래 가능성과 큰 그림을 중시하여 창의적인 아이디어를 도출하지만, N 성향이 지나치면 실질적인 세부 사항을 무시해 비현실적인 계획으로 이어질 수 있습니다.",
+        T: "사고형(Thinking): 논리적이고 객관적인 판단력을 통해 합리적 결정을 내리지만, T 성향이 강하면 감정을 배제하여 인간관계에서 공감 부족과 무뚝뚝한 인상을 줄 수 있습니다.",
+        F: "감정형(Feeling): 감정과 인간관계를 중시해 따뜻한 소통을 이루지만, F 성향이 과도하면 주관적인 판단과 과도한 감정 이입으로 객관성을 잃을 수 있습니다.",
+        J: "판단형(Judging): 체계적이고 계획적인 생활을 선호해 안정적인 환경을 유지하지만, J 성향이 지나치면 융통성이 부족해 변화에 둔감하거나 경직된 사고로 발전 기회를 놓칠 수 있습니다.",
+        P: "인식형(Perceiving): 유연하고 개방적인 사고로 다양한 가능성을 탐색하지만, P 성향이 강하면 우유부단함과 계획 부재로 목표 달성이 어려워질 수 있습니다.",
+      };
+
+      // ===== 질문 생성 함수 =====
+      function generateQuestions() {
+        const quizContainer = document.getElementById("quiz-container");
+        questions.forEach((q, index) => {
+          const questionDiv = document.createElement("div");
+          questionDiv.className = "question";
+          questionDiv.setAttribute("data-category", q.category);
+
+          const questionText = document.createElement("div");
+          questionText.className = "question-text";
+          questionText.textContent = q.text;
+          questionDiv.appendChild(questionText);
+
+          const options = document.createElement("div");
+          options.className = "options";
+
+          // 5개 선택지 모두 텍스트 표시
+          for (let i = 0; i < 5; i++) {
+            const option = document.createElement("div");
+            option.className = "option";
+
+            // 라디오 버튼
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "question" + index;
+            radio.value = i;
+            radio.required = true;
+            radio.addEventListener("change", updateProgress);
+            option.appendChild(radio);
+
+            // 라벨 (선택지 텍스트)
+            const label = document.createElement("div");
+            label.className = "scale-label";
+            label.textContent = q.options[i];
+            option.appendChild(label);
+
+            options.appendChild(option);
+          }
+          questionDiv.appendChild(options);
+          quizContainer.appendChild(questionDiv);
+        });
+      }
+
+      // ===== 진행도 업데이트 함수 =====
+      function updateProgress() {
+        const totalQuestions = questions.length;
+        const answered = document.querySelectorAll(
+          'input[type="radio"]:checked'
+        ).length;
+        const progressPercent = Math.round((answered / totalQuestions) * 100);
+        document.getElementById("progress").style.width = progressPercent + "%";
+        document.getElementById("progress").textContent = progressPercent + "%";
+      }
+
+      // ===== 결과 계산 함수 =====
+      function calculateResult() {
+        const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        const totalQuestions = questions.length;
+        const answered = document.querySelectorAll(
+          'input[type="radio"]:checked'
+        ).length;
+
+        if (answered < totalQuestions) {
+          alert(
+            `아직 모든 질문에 답하지 않았습니다. (${answered}/${totalQuestions})`
+          );
+          return;
+        }
+
+        // 각 질문별 점수 계산
+        questions.forEach((q, index) => {
+          const selectedValue = document.querySelector(
+            `input[name="question${index}"]:checked`
+          ).value;
+          const category = q.category.split("-");
+          const numValue = parseInt(selectedValue);
+          // 0,1 => 왼쪽 (예: E, S, T, J), 2는 중간 (점수 미반영), 3,4 => 오른쪽 (예: I, N, F, P)
+          if (numValue < 2) {
+            scores[category[0]] += 2 - numValue;
+          } else if (numValue > 2) {
+            scores[category[1]] += numValue - 2;
+          }
+        });
+
+        // MBTI 유형 결정
+        let type = "";
+        type += scores["E"] > scores["I"] ? "E" : "I";
+        type += scores["S"] > scores["N"] ? "S" : "N";
+        type += scores["T"] > scores["F"] ? "T" : "F";
+        type += scores["J"] > scores["P"] ? "J" : "P";
+
+        // 각 차원별 퍼센트 계산
+        const eiTotal = scores["E"] + scores["I"];
+        const snTotal = scores["S"] + scores["N"];
+        const tfTotal = scores["T"] + scores["F"];
+        const jpTotal = scores["J"] + scores["P"];
+
+        const ePercent =
+          eiTotal === 0 ? 50 : Math.round((scores["E"] / eiTotal) * 100);
+        const iPercent =
+          eiTotal === 0 ? 50 : Math.round((scores["I"] / eiTotal) * 100);
+        const sPercent =
+          snTotal === 0 ? 50 : Math.round((scores["S"] / snTotal) * 100);
+        const nPercent =
+          snTotal === 0 ? 50 : Math.round((scores["N"] / snTotal) * 100);
+        const tPercent =
+          tfTotal === 0 ? 50 : Math.round((scores["T"] / tfTotal) * 100);
+        const fPercent =
+          tfTotal === 0 ? 50 : Math.round((scores["F"] / tfTotal) * 100);
+        const jPercent =
+          jpTotal === 0 ? 50 : Math.round((scores["J"] / jpTotal) * 100);
+        const pPercent =
+          jpTotal === 0 ? 50 : Math.round((scores["P"] / jpTotal) * 100);
+
+        // 결과 영역 업데이트
+        document.getElementById("mbti-type").textContent = type;
+        document.getElementById("type-description").textContent =
+          typeDescriptions[type] || "테스트 결과를 해석할 수 없습니다.";
+
+        // 차원별 결과 막대 그래프 표시
+        const dimensionResults = document.getElementById("dimension-results");
+        dimensionResults.innerHTML = "";
+
+        function createDimensionBar(
+          title,
+          leftLabel,
+          rightLabel,
+          leftPercent,
+          rightPercent,
+          chosenSide
+        ) {
+          return `
+          <h4>${title}</h4>
+          <div style="display: flex; margin-bottom: 10px;">
+            <div style="width: ${leftPercent}%; background-color: #3498db; color: #fff; padding: 5px 0; text-align: center;">
+              ${leftLabel} ${leftPercent}%
+            </div>
+            <div style="width: ${rightPercent}%; background-color: #e74c3c; color: #fff; padding: 5px 0; text-align: center;">
+              ${rightLabel} ${rightPercent}%
+            </div>
+          </div>
+          <p>${dimensionDescriptions[chosenSide]}</p>
+        `;
+        }
+
+        dimensionResults.innerHTML += createDimensionBar(
+          "외향 vs 내향 (E-I)",
+          "E",
+          "I",
+          ePercent,
+          iPercent,
+          type.charAt(0)
+        );
+        dimensionResults.innerHTML += createDimensionBar(
+          "감각 vs 직관 (S-N)",
+          "S",
+          "N",
+          sPercent,
+          nPercent,
+          type.charAt(1)
+        );
+        dimensionResults.innerHTML += createDimensionBar(
+          "사고 vs 감정 (T-F)",
+          "T",
+          "F",
+          tPercent,
+          fPercent,
+          type.charAt(2)
+        );
+        dimensionResults.innerHTML += createDimensionBar(
+          "판단 vs 인식 (J-P)",
+          "J",
+          "P",
+          jPercent,
+          pPercent,
+          type.charAt(3)
+        );
+
+        // 추가 분석 영역 업데이트
+        const analysisContainer = document.getElementById(
+          "additional-analysis"
+        );
+        analysisContainer.innerHTML = "";
+
+        if (typeAnalysis[type]) {
+          const {
+            jungFunctions,
+            strengths,
+            weaknesses,
+            balance,
+            careers,
+            idealPartner,
+            training,
+          } = typeAnalysis[type];
+          analysisContainer.innerHTML += `<p><strong>칼 융 이론 기반 주요 기능 스택:</strong><br/>${jungFunctions}</p>`;
+          analysisContainer.innerHTML += `<p><strong>장점:</strong> ${strengths}</p>`;
+          analysisContainer.innerHTML += `<p><strong>약점:</strong> ${weaknesses}</p>`;
+          analysisContainer.innerHTML += `<p><strong>밸런스 팁:</strong> ${balance}</p>`;
+          analysisContainer.innerHTML += `<p><strong>추천 직업군:</strong> ${careers}</p>`;
+          analysisContainer.innerHTML += `
+          <h4 class="highlight-title">나와 맞는 이성의 MBTI</h4>
+          <p style="color: #000;">
+            - ESFJ는 따뜻한 외향적 감정(Fe)을 통해 ISTJ가 억제하기 쉬운 감정을 부드럽게 표출하도록 도와줍니다.<br>
+            - ESFJ의 공감 능력은 ISTJ가 때때로 느끼는 정서적 고립감을 해소하고, 안정된 감정 지원을 제공합니다.<br>
+            - ESTJ는 ISTJ와 유사한 체계적 사고를 공유하지만, 보다 적극적인 대인관계를 통해 ISTJ에게 새로운 사회적 경험과 자극을 줍니다.<br>
+            - 이러한 파트너들은 ISTJ의 보수적인 면을 보완하며, 정서적 힐링과 실질적 도움을 동시에 제공합니다.<br>
+            - 결과적으로, ESFJ와 ESTJ와의 관계는 ISTJ가 가진 강점을 극대화하고, 약점을 보완하여 전반적인 삶의 질을 향상시키는 데 크게 기여합니다.
+          </p>
+        `;
+          analysisContainer.innerHTML += `<p><strong>개선 트레이닝:</strong><br/>${training}</p>`;
+        } else {
+          analysisContainer.innerHTML =
+            "<p>해당 유형에 대한 구체적인 분석 정보가 없습니다.</p>";
+        }
+
+        // 결과 영역 표시 및 스크롤
+        document.getElementById("result").style.display = "block";
+        document.getElementById("quiz-container").style.display = "none";
+        document.getElementById("submit-btn").style.display = "none";
+        document.querySelector(".progress-container").style.display = "none";
+        document
+          .getElementById("result")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      // 초기 실행
+      generateQuestions();
+    </script>
+  </body>
+</html>
